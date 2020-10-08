@@ -1,52 +1,47 @@
 import * as React from 'react'
+import { useEffect } from 'react'
 import { connect } from 'react-redux'
+import { Grid } from '@material-ui/core'
+import { dashboardLoad } from '../../actions/dashboard.actions'
 import { AppState } from '../../reducers'
-import { Card, CardActions, CardContent, CardHeader, Grid, Switch, Typography, Button } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+import { DashboardModule } from '../../reducers/dashboard.reducer'
+import { GuildState } from '../../reducers/user.reducer'
+import { DashboardContent } from './content'
+import { DashboardError } from './error'
+import { DashboardLoading } from './loading'
 
 interface DashboardProps {
-
+  dashboardLoad: () => void
+  error: Boolean
+  guilds: GuildState[]
+  lastSelectedGuildId: string
+  loading: Boolean
+  modules: DashboardModule[]
 }
 
-const modules = ['Dad Jokes', 'Quiz', 'Raffle', 'Trial Planner']
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: '#424242'
-  }
-}))
-
 const dashboard = (props: DashboardProps) => {
-  const styles = useStyles()
-  return <>
-    <Grid container spacing={1}>
-      {modules.map((module, i) => <Grid item key={'module-' + i} xs={12} md={4} xl={2}>
-        <Card className={styles.root} variant='outlined'>
-          <CardHeader
-            action={<Switch
-              checked={true}
-              onChange={() => {}}
-              name={'enable-module-' + i}
-              inputProps={{ 'aria-label': 'secondary checkbox' }}
-            />}
-            title={module}
-          />
-          <CardContent>
-            <Typography color='secondary' variant='body1'>Module Description</Typography>
-          </CardContent>
-          <CardActions>
-            <Button color='primary' variant='outlined'>Manage {module}</Button>
-          </CardActions>
-        </Card>
-      </Grid>)}
+  useEffect(() => {
+    props.dashboardLoad()
+  }, [])
+  return <Grid container >
+    <Grid item sm={1} xl={3}></Grid>
+    <Grid item sm={10} xl={6}>
+      { props.error && <DashboardError currentGuildName={props.guilds[props.lastSelectedGuildId].name} retry={props.dashboardLoad}/> }
+      { !props.error && props.loading && <DashboardLoading /> }
+      { !props.error && !props.loading && <DashboardContent modules={props.modules} /> }
     </Grid>
-  </>
+  </Grid>
 }
 
 export const Dashboard = connect(
   (state: AppState) => ({
-
+    error: state.dashboard.error,
+    guilds: state.user.guilds,
+    lastSelectedGuildId: state.user.lastSelectedGuildId,
+    loading: state.dashboard.loading,
+    modules: state.dashboard.modules
   }),
   (dispatch) => ({
-
+    dashboardLoad: () => dispatch(dashboardLoad())
   })
 )(dashboard)
