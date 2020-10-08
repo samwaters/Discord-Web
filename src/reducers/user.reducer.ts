@@ -1,5 +1,5 @@
 import { Action } from '../actions/action.interface'
-import { SET_USER } from '../actions/user.actions'
+import { SELECT_GUILD_FAILED, SELECT_GUILD_SUCCESS, SET_USER } from '../actions/user.actions'
 
 export interface UserState {
   avatar: string
@@ -8,6 +8,7 @@ export interface UserState {
   flags: number
   guilds: GuildState[]
   id: string
+  lastSelectedGuildId: string
   locale: string
   // eslint-disable-next-line camelcase
   mfa_enabled: boolean
@@ -35,6 +36,7 @@ const initialState: UserState = {
   flags: 0,
   guilds: [],
   id: '',
+  lastSelectedGuildId: '0',
   locale: '',
   mfa_enabled: false,
   public_flags: 0,
@@ -44,6 +46,16 @@ const initialState: UserState = {
 
 export const userReducer = (state: UserState = initialState, action: Action) => {
   switch (action.type) {
+    case SELECT_GUILD_FAILED:
+      return {
+        ...state,
+        error: true
+      }
+    case SELECT_GUILD_SUCCESS:
+      return {
+        ...state,
+        lastSelectedGuildId: action.payload
+      }
     case SET_USER:
       return {
         ...action.payload
