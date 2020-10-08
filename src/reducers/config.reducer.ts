@@ -3,7 +3,7 @@ import { LOAD_CONFIG_FAILED, LOAD_CONFIG_SUCCESS } from '../actions/config.actio
 
 export interface ConfigState {
   clientId: string
-  discordApiURL: string
+  apiUrl: string
   error: boolean
   redirectUrl: string
   scopes: string[]
@@ -11,7 +11,7 @@ export interface ConfigState {
 
 const initialState: ConfigState = {
   clientId: '',
-  discordApiURL: '',
+  apiUrl: '',
   error: false,
   redirectUrl: '',
   scopes: []

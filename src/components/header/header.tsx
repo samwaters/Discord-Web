@@ -3,23 +3,24 @@ import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 import { AppBar, Avatar, Button, IconButton, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import { ArrowDropDown, Info, SentimentSatisfiedAlt, SportsEsports } from '@material-ui/icons'
+import { ArrowDropDown, Info, SportsEsports } from '@material-ui/icons'
 import { AppState } from '../../reducers'
 import { GuildState } from '../../reducers/user.reducer'
 import { StyledMenu } from '../menu/menu'
 import { StyledMenuItem } from '../menu/menuitem'
-import { setGuild } from '../../actions/settings.actions'
+import { selectGuild } from '../../actions/user.actions'
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   title: {
     flexGrow: 1
   }
-}))
+})
 
 interface HeaderProps {
   avatar: string
   currentGuild: number
-  guilds: GuildState[]
+  guilds: {[id: string]: GuildState}
+  lastSelectedGuildId: number
   loggedIn: boolean
   navigate: (path: string) => void
   setGuild: (guild: number) => void
@@ -60,7 +61,7 @@ const header = (props: HeaderProps) => {
               onClick={handleClick}
               variant='outlined'
             >
-              {props.guilds[props.currentGuild].name}
+              {props.guilds[props.currentGuild]?.name || 'UNKNOWN'}
             </Button>
             <StyledMenu
               id='guild-menu'
@@ -69,10 +70,10 @@ const header = (props: HeaderProps) => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              { props.guilds.map((guild, i) =>
-                <StyledMenuItem key={'guild-' + i} onClick={() => handleSelect(i, props)}>
-                  <Avatar alt={guild.name} src={`//cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`}/>
-                  {guild.name}
+              { Object.keys(props.guilds).map((guildId) =>
+                <StyledMenuItem key={'guild-' + guildId} onClick={() => handleSelect(guildId, props)} selected={guildId === '2'}>
+                  <Avatar alt={props.guilds[guildId].name} src={`//cdn.discordapp.com/icons/${props.guilds[guildId].id}/${props.guilds[guildId].icon}.png`}/>
+                  {props.guilds[guildId].name}
                 </StyledMenuItem>
               )}
             </StyledMenu>
@@ -101,7 +102,7 @@ const header = (props: HeaderProps) => {
 export const Header = connect(
   (state: AppState) => ({
     avatar: state.user.avatar,
-    currentGuild: state.settings.currentGuild,
+    currentGuild: state.user.lastSelectedGuildId,
     guilds: state.user.guilds,
     loggedIn: state.auth.loggedIn,
     userId: state.user.id,
@@ -109,6 +110,6 @@ export const Header = connect(
   }),
   (dispatch) => ({
     navigate: (path: string) => dispatch(push(path)),
-    setGuild: (guild: number) => dispatch(setGuild(guild))
+    setGuild: (guild: number) => dispatch(selectGuild(guild))
   })
 )(header)

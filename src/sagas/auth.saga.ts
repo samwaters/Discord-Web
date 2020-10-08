@@ -1,5 +1,6 @@
 import { call, put, select, takeEvery } from '@redux-saga/core/effects'
 import { push } from 'connected-react-router'
+import { v4 } from 'uuid'
 
 import {
   CHECK_FOR_TOKEN,
@@ -8,6 +9,7 @@ import {
   EXCHANGE_TOKEN,
   exchangeTokenFailed,
   exchangeTokenSuccess,
+  generateState,
   LOG_IN_SUCCESS,
   logInFailed,
   logInSuccess,
@@ -21,7 +23,14 @@ import { setUser } from '../actions/user.actions'
 import { authenticatedGet, post } from '../util/http'
 import { AppState } from '../reducers'
 
+// Called on login page
 function * checkForToken() {
+  let state = window.localStorage.getItem('state')
+  if (!state) {
+    state = v4()
+    window.localStorage.setItem('state', state)
+  }
+  yield put(generateState(state))
   const token = window.localStorage.getItem('token')
   if (token) {
     yield put(checkForTokenSuccess(token))
@@ -34,8 +43,16 @@ function * checkForToken() {
 // Exchange a token for an access token
 function * exchangeToken(action: Action) {
   try {
+    const auth = yield select((state: AppState) => state.auth)
     const config = yield select((state: AppState) => state.config)
-    const oauthToken = yield call(post, `${config.apiUrl}/api/auth/token`, { token: action.payload })
+    if (action.payload.state !== auth.state) {
+      throw new Error('State does not match')
+    }
+    const oauthToken = yield call(
+      post,
+      `${config.apiUrl}/api/auth/token`,
+      { token: action.payload.token }
+    )
     const mappedToken = JSON.stringify({
       accessToken: oauthToken.access_token,
       createdAt: oauthToken.createdAt,

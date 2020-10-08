@@ -19,10 +19,12 @@ const useStyles = makeStyles((theme) => ({
 
 interface LoginProps {
   accessToken: string
+  apiUrl: string
   checkForToken: () => void
-  exchangeToken: (token: string) => void
+  exchangeToken: (token: string, state: string) => void
   loggedIn: boolean
   navigate: (path: string) => void
+  state: string
   tokenError: boolean
   tokenValidated: boolean
 }
@@ -30,7 +32,8 @@ interface LoginProps {
 const messageHandler = (props: LoginProps) => {
   window.onmessage = (message) => {
     if (message.data && message.data.type === 'TOKEN_EVENT') {
-      props.exchangeToken(message.data.code)
+      console.log(message.data)
+      props.exchangeToken(message.data.code, message.data.state)
     }
   }
 }
@@ -57,7 +60,7 @@ const login = (props: LoginProps) => {
         <p className={classes.centerAlign}>
           <img className={classes.logo} src='https://discord.com/assets/192cb9459cbc0f9e73e2591b700f1857.svg'/>
         </p>
-        { !props.accessToken && <LoginContent tokenError={props.tokenError} navigate={props.navigate} open={windowOpener} /> }
+        { !props.accessToken && <LoginContent apiUrl={props.apiUrl} open={windowOpener} navigate={props.navigate} state={props.state} tokenError={props.tokenError} /> }
         { props.accessToken && !props.tokenValidated && <LoginValidate /> }
         { props.accessToken && props.tokenValidated && <Redirect to='/' /> }
       </Grid>
@@ -68,13 +71,15 @@ const login = (props: LoginProps) => {
 export const Login = connect(
   (state: AppState) => ({
     accessToken: state.auth.accessToken,
+    apiUrl: state.config.apiUrl,
     loggedIn: state.auth.loggedIn,
+    state: state.auth.state,
     tokenError: state.auth.error,
     tokenValidated: state.auth.tokenValidated
   }),
   (dispatch) => ({
     checkForToken: () => dispatch(checkForToken()),
-    exchangeToken: (token: string) => dispatch(exchangeToken(token)),
+    exchangeToken: (token: string, state: string) => dispatch(exchangeToken(token, state)),
     navigate: (path: string) => dispatch(push(path))
   })
 )(login)

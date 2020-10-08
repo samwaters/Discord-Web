@@ -1,7 +1,11 @@
 import { Action } from '../actions/action.interface'
 import {
   CHECK_FOR_TOKEN_FAILED,
-  CHECK_FOR_TOKEN_SUCCESS, EXCHANGE_TOKEN_FAILED, EXCHANGE_TOKEN_SUCCESS, LOG_IN_SUCCESS,
+  CHECK_FOR_TOKEN_SUCCESS,
+  EXCHANGE_TOKEN_FAILED,
+  EXCHANGE_TOKEN_SUCCESS,
+  GENERATE_STATE,
+  LOG_IN_SUCCESS,
   LOG_OUT_FAILED,
   LOG_OUT_SUCCESS,
   VALIDATE_TOKEN_FAILED,
@@ -19,6 +23,18 @@ export interface AuthState {
   state: string
   tokenType: string
   tokenValidated: boolean
+}
+
+const errorState: Partial<AuthState> = {
+  accessToken: '',
+  createdAt: 0,
+  error: true,
+  expiresIn: 0,
+  loggedIn: false,
+  refreshToken: '',
+  scope: '',
+  tokenType: '',
+  tokenValidated: false
 }
 
 const initialState: AuthState = {
@@ -51,6 +67,11 @@ export const authReducer = (state: AuthState = initialState, action: Action) => 
         error: false,
         tokenValidated: false
       }
+    case GENERATE_STATE:
+      return {
+        ...state,
+        state: action.payload
+      }
     case LOG_IN_SUCCESS:
       return {
         ...state,
@@ -68,8 +89,8 @@ export const authReducer = (state: AuthState = initialState, action: Action) => 
     case EXCHANGE_TOKEN_FAILED:
     case VALIDATE_TOKEN_FAILED:
       return {
-        ...initialState,
-        error: true
+        ...state,
+        ...errorState
       }
     case VALIDATE_TOKEN_SUCCESS:
       return {

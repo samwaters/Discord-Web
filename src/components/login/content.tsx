@@ -8,8 +8,10 @@ const useStyles = makeStyles(() => ({
 }))
 
 interface LoginContentProps {
+  apiUrl: string
   navigate: (path: string) => void
   open: (path: string) => void
+  state: string
   tokenError: boolean
 }
 
@@ -24,7 +26,7 @@ export const LoginContent = (props: LoginContentProps) => {
     <Typography color='secondary' variant='body2'>To add Just Fred to your server, please see the Installation
       Instructions before logging in</Typography>
     <p className={classes.centerAlign}>
-      <Button color='primary' onClick={() => props.open('http://localhost:8080/api/auth/redirect')} variant='outlined'>Log In</Button>
+      <Button color='primary' onClick={() => props.open(`${props.apiUrl}/api/auth/redirect?state=${props.state}`)} variant='outlined'>Log In</Button>
     </p>
     <p className={classes.centerAlign}>
       <Button color='secondary' onClick={() => props.navigate('/installation')} variant='outlined'>Installation

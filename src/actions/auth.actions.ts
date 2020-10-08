@@ -4,6 +4,7 @@ export const CHECK_FOR_TOKEN_SUCCESS = 'CHECK_FOR_TOKEN_SUCCESS'
 export const EXCHANGE_TOKEN = 'EXCHANGE_TOKEN'
 export const EXCHANGE_TOKEN_FAILED = 'EXCHANGE_TOKEN_FAILED'
 export const EXCHANGE_TOKEN_SUCCESS = 'EXCHANGE_TOKEN_SUCCESS'
+export const GENERATE_STATE = 'GENERATE_STATE'
 export const LOG_IN = 'LOG_IN'
 export const LOG_IN_FAILED = 'LOG_IN_FAILED'
 export const LOG_IN_SUCCESS = 'LOG_IN_SUCCESS'
@@ -27,9 +28,9 @@ export const checkForTokenSuccess = (token: string) => ({
   payload: token
 })
 
-export const exchangeToken = (token: string) => ({
+export const exchangeToken = (token: string, state: string) => ({
   type: EXCHANGE_TOKEN,
-  payload: token
+  payload: { token, state }
 })
 
 export const exchangeTokenFailed = () => ({
@@ -39,6 +40,11 @@ export const exchangeTokenFailed = () => ({
 export const exchangeTokenSuccess = (token: string) => ({
   type: EXCHANGE_TOKEN_SUCCESS,
   payload: token
+})
+
+export const generateState = (state: string) => ({
+  type: GENERATE_STATE,
+  payload: state
 })
 
 export const logIn = () => ({
